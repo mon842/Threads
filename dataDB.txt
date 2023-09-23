@@ -1,0 +1,4 @@
+cluster name: threads
+project name: threads
+user name: sayakbasakhack
+pass: hackathon
