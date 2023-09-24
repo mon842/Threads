@@ -5,16 +5,26 @@ import User from "../models/user.model";
 import { connectToDB } from "../mongoose"
 
 interface Params {
-    userId: string;
-    username: string;
-    name: string;
-    bio: string;
-    image: string;
-    path: string;
-  }
+  userId: string;
+  username: string;
+  name: string;
+  bio: string;
+  image: string;
+  path: string;
+}
   
+export async function fetchUser(userId: string){
+  try {
+    connectToDB();
+    const res= await User.findOne({id: userId});
+    return res;
 
-  export async function updateUser({
+  } catch (error:any) {
+    throw new Error(`Failed to create/update user: ${error.message}`);
+  }
+}
+
+export async function updateUser({
     userId,
     bio,
     name,
@@ -41,11 +51,10 @@ interface Params {
         revalidatePath(path);
       }
     } catch (error: any) {
-        console.log(error);
         
       throw new Error(`Failed to create/update user: ${error.message}`);
-    }
   }
+}
 // export async function updateUser({
 //     userId,
 //     bio,
