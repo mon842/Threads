@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { connectToDB } from "../mongoose";
 import Thread from "../models/thread.model";
 import User from "../models/user.model";
+import { fetchUser } from "./user.actions";
 
 interface Params {
     text: string,
@@ -101,9 +102,43 @@ export async function fetchThreadById(threadId: string) {
                 ],
             })
             .exec();
-            
+
         return thread;
     } catch (error: any) {
         throw new Error(`Failed to create thread: ${error.message}`);
     }
 }
+
+
+export async function addCommentToThread(threadId: string, commentText: string, userId: string, path: string) {
+    try {
+        connectToDB();
+        const originalThread = await Thread.findById(threadId);
+
+        if (!originalThread) {
+            throw new Error("Thread not found");
+        }
+
+        const commentThread = new Thread({
+            text: commentText,
+            author: userId,
+            parentId: threadId, // Set the parentId to the original thread's ID
+        });
+
+        // Save the comment thread to the database
+        const savedCommentThread = await commentThread.save();
+
+        // Add the comment thread's ID to the original thread's children array
+        originalThread.children.push(savedCommentThread._id);
+
+        // Save the updated original thread to the database
+        await originalThread.save();
+
+        revalidatePath(path);
+
+    } catch (err) {
+        console.error("Error while adding comment:", err);
+        throw new Error("Unable to add comment");
+    }
+}
+
