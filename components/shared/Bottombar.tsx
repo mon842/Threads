@@ -6,11 +6,15 @@ import React from 'react'
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { SignOutButton, SignedIn, useAuth } from "@clerk/nextjs";
+
 
 import { sidebarLinks } from "@/constants";
 
 const Bottombar = () => {
   const pathname = usePathname();
+
+  const {userId}= useAuth();
   return (
     <section className='bottombar'>
       <div className='bottombar_container'>
@@ -24,7 +28,7 @@ const Bottombar = () => {
 
             return (
               <Link
-                href={link.route}
+                href={link.label === 'Profile' ? `${link.route}/${userId}` : link.route}
                 key={link.label}
                 className={`bottombar_link ${isActive && "bg-primary-500 "}`}
               >

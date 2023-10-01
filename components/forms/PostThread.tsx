@@ -19,7 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { ThreadValidation } from "@/lib/validations/thread";
 import { createThread } from "@/lib/actions/thread.actions";
-
+import { CreateOrganization } from "@clerk/nextjs";
 
 interface Props {
     userId: string;
@@ -41,15 +41,25 @@ function PostThread({ userId }: Props) {
     });
 
     const onSubmit = async (values: z.infer<typeof ThreadValidation>) => {
-        await createThread({
-          text: values.thread,
-          author: userId,
-          communityId:  null,
-          path: pathname,
-        });
-    
+        if (!organization) {
+            await createThread({
+                text: values.thread,
+                author: userId,
+                communityId: null,
+                path: pathname,
+            });
+        } else {
+            await createThread({
+                text: values.thread,
+                author: userId,
+                communityId: organization.id,
+                path: pathname,
+            });
+        }
+
+
         router.push("/");
-      };
+    };
 
     return (
         <Form {...form}>
